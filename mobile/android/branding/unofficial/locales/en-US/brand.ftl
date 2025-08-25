@@ -12,9 +12,9 @@
 ##
 ## Reference: https://www.mozilla.org/styleguide/communications/translation/
 
--brand-short-name = Fennec
--brand-full-name = Mozilla Fennec
+-brand-short-name = Gurawa Browser
+-brand-full-name = Gurawa Browser
 # This brand name can be used in messages where the product name needs to
 # remain unchanged across different versions (Nightly, Beta, etc.).
--brand-product-name = Firefox
--vendor-short-name = Mozilla
+-brand-product-name = Gurawa Browser
+-vendor-short-name = Gurawa

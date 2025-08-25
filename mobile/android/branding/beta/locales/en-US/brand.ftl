@@ -12,9 +12,9 @@
 ##
 ## Reference: https://www.mozilla.org/styleguide/communications/translation/
 
--brand-short-name = Firefox Beta
--brand-full-name = Mozilla Firefox Beta
+-brand-short-name = Gurawa Browser Beta
+-brand-full-name = Gurawa Browser Beta
 # This brand name can be used in messages where the product name needs to
 # remain unchanged across different versions (Nightly, Beta, etc.).
--brand-product-name = Firefox
--vendor-short-name = Mozilla
+-brand-product-name = Gurawa Browser
+-vendor-short-name = Gurawa
