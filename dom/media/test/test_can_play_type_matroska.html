@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+<!--
+Test for Matroska/MKV container support
+-->
+<head>
+  <title>Test for Matroska/MKV backend</title>
+  <script src="/tests/SimpleTest/SimpleTest.js"></script>
+  <link rel="stylesheet" type="text/css" href="/tests/SimpleTest/test.css"/>
+  <script type="text/javascript" src="manifest.js"></script>
+</head>
+<body>
+<a target="_blank" href="https://github.com/Gurawa/GigaBrowser">GigaBrowser</a>
+<p id="display"></p>
+<div id="content" style="display: none">
+</div>
+
+<video id="v"></video>
+
+<pre id="test">
+<script src="can_play_type_matroska.js"></script>
+<script>
+  async function runTest() {
+    try {
+      await check_matroska(document.getElementById('v'), true);
+      mediaTestCleanup();
+    } catch (e) {
+      info("Exception " + e.message);
+      ok(false, "Threw exception " + e.message);
+    }
+    SimpleTest.finish();
+  }
+
+  SimpleTest.requestLongerTimeout(2);
+  SimpleTest.waitForExplicitFinish();
+  SpecialPowers.pushPrefEnv({"set": [["media.webm.enabled", true]]}, runTest);
+</script>
+</pre>
+</body>
+</html>
