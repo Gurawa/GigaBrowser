@@ -219,6 +219,8 @@ void HTMLVideoElement::UnbindFromTree(UnbindContext& aContext) {
 nsresult HTMLVideoElement::SetAcceptHeader(nsIHttpChannel* aChannel) {
   nsAutoCString value(
       "video/webm,"
+      "video/x-matroska,"
+      "video/mkv,"
       "video/ogg,"
       "video/*;q=0.9,"
       "application/ogg;q=0.7,"

@@ -11,6 +11,7 @@
 #include "OggDemuxer.h"
 #include "WebMDecoder.h"
 #include "WebMDemuxer.h"
+#include "MatroskaDecoder.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/glean/DomMediaHlsMetrics.h"
 
@@ -73,6 +74,14 @@ static CanPlayStatus CanHandleCodecsType(
     }
     // We can only reach this position if a particular codec was requested,
     // webm is supported and working: the codec must be invalid.
+    return CANPLAY_NO;
+  }
+  if (MatroskaDecoder::IsSupportedType(mimeType)) {
+    if (MatroskaDecoder::IsSupportedType(aType)) {
+      return CANPLAY_YES;
+    }
+    // We can only reach this position if a particular codec was requested,
+    // matroska is supported and working: the codec must be invalid.
     return CANPLAY_NO;
   }
   if (MP4Decoder::IsSupportedType(mimeType,
@@ -146,6 +155,9 @@ static CanPlayStatus CanHandleMediaType(
   if (WebMDecoder::IsSupportedType(mimeType)) {
     return CANPLAY_MAYBE;
   }
+  if (MatroskaDecoder::IsSupportedType(mimeType)) {
+    return CANPLAY_MAYBE;
+  }
   if (MP3Decoder::IsSupportedType(mimeType)) {
     return CANPLAY_MAYBE;
   }
@@ -206,6 +218,8 @@ already_AddRefed<MediaDataDemuxer> DecoderTraits::CreateDemuxer(
     demuxer = new OggDemuxer(aResource);
   } else if (WebMDecoder::IsSupportedType(aType)) {
     demuxer = new WebMDemuxer(aResource);
+  } else if (MatroskaDecoder::IsSupportedType(aType)) {
+    demuxer = new WebMDemuxer(aResource);
   }
 
   return demuxer.forget();
@@ -249,6 +263,7 @@ bool DecoderTraits::IsSupportedInVideoDocument(const nsACString& aType) {
 
   return OggDecoder::IsSupportedType(*type) ||
          WebMDecoder::IsSupportedType(*type) ||
+         MatroskaDecoder::IsSupportedType(*type) ||
          MP4Decoder::IsSupportedType(*type,
                                      /* DecoderDoctorDiagnostics* */ nullptr) ||
          MP3Decoder::IsSupportedType(*type) ||
@@ -277,6 +292,9 @@ nsTArray<UniquePtr<TrackInfo>> DecoderTraits::GetTracksInfo(
   }
   if (WebMDecoder::IsSupportedType(mimeType)) {
     return WebMDecoder::GetTracksInfo(aType);
+  }
+  if (MatroskaDecoder::IsSupportedType(mimeType)) {
+    return MatroskaDecoder::GetTracksInfo(aType);
   }
   if (MP3Decoder::IsSupportedType(mimeType)) {
     return MP3Decoder::GetTracksInfo(aType);

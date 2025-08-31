@@ -94,6 +94,8 @@ already_AddRefed<HTMLAudioElement> HTMLAudioElement::Audio(
 nsresult HTMLAudioElement::SetAcceptHeader(nsIHttpChannel* aChannel) {
   nsAutoCString value(
       "audio/webm,"
+      "audio/x-matroska,"
+      "audio/mkv,"
       "audio/ogg,"
       "audio/wav,"
       "audio/*;q=0.9,"
