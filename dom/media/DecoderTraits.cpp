@@ -14,6 +14,8 @@
 #include "MatroskaDecoder.h"
 #include "mozilla/Preferences.h"
 #include "mozilla/glean/DomMediaHlsMetrics.h"
+#include "mozilla/glean/DomMediaMetrics.h"
+#include "nsMimeTypes.h"
 
 #ifdef MOZ_ANDROID_HLS_SUPPORT
 #  include "HLSDecoder.h"
@@ -42,6 +44,12 @@ bool DecoderTraits::IsHttpLiveStreamingType(const MediaContainerType& aType) {
       mimeType == MEDIAMIMETYPE("application/x-mpegurl") ||
       mimeType == MEDIAMIMETYPE("audio/mpegurl") ||
       mimeType == MEDIAMIMETYPE("audio/x-mpegurl");
+}
+
+static bool IsMatroskaType(const MediaContainerType& aType) {
+  const auto& mimeType = aType.Type();
+  return mimeType == MEDIAMIMETYPE(VIDEO_MATROSKA) ||
+         mimeType == MEDIAMIMETYPE(AUDIO_MATROSKA);
 }
 
 static CanPlayStatus CanHandleCodecsType(
@@ -125,6 +133,9 @@ static CanPlayStatus CanHandleMediaType(
     const MediaContainerType& aType, DecoderDoctorDiagnostics* aDiagnostics) {
   if (DecoderTraits::IsHttpLiveStreamingType(aType)) {
     glean::hls::canplay_requested.Add();
+  }
+  if (IsMatroskaType(aType)) {
+    glean::media::mkv_content_count.Add();
   }
 #ifdef MOZ_ANDROID_HLS_SUPPORT
   if (HLSDecoder::IsSupportedType(aType)) {
