@@ -45,8 +45,8 @@ nsTArray<UniquePtr<TrackInfo>> MatroskaDecoder::GetTracksInfo(
 
   for (const auto& codec : codecs.Range()) {
     if (codec.EqualsLiteral("opus") || codec.EqualsLiteral("vorbis") ||
-        codec.EqualsLiteral("mp4a") || codec.Find("mp4a."_ns) == 0 ||
-        codec.EqualsLiteral("aac") || codec.Find("aac."_ns) == 0) {
+        codec.EqualsLiteral("mp4a") || codec.Find(u"mp4a."_ns) == 0 ||
+        codec.EqualsLiteral("aac") || codec.Find(u"aac."_ns) == 0) {
       nsString mimeType;
       if (codec.EqualsLiteral("opus")) {
         mimeType = u"audio/opus"_ns;
@@ -68,13 +68,13 @@ nsTArray<UniquePtr<TrackInfo>> MatroskaDecoder::GetTracksInfo(
       } else if (IsVP8CodecString(codec)) {
         trackInfo = CreateTrackInfoWithMIMETypeAndContainerTypeExtraParameters(
             "video/vp8"_ns, aType);
-      } else if (codec.EqualsLiteral("avc1") || codec.Find("avc1."_ns) == 0 ||
-                 codec.EqualsLiteral("h264") || codec.Find("h264."_ns) == 0) {
+      } else if (codec.EqualsLiteral("avc1") || codec.Find(u"avc1."_ns) == 0 ||
+                 codec.EqualsLiteral("h264") || codec.Find(u"h264."_ns) == 0) {
         trackInfo = CreateTrackInfoWithMIMETypeAndContainerTypeExtraParameters(
             "video/avc"_ns, aType);
-      } else if (codec.EqualsLiteral("hvc1") || codec.Find("hvc1."_ns) == 0 ||
-                 codec.EqualsLiteral("hev1") || codec.Find("hev1."_ns) == 0 ||
-                 codec.EqualsLiteral("hevc") || codec.Find("hevc."_ns) == 0) {
+      } else if (codec.EqualsLiteral("hvc1") || codec.Find(u"hvc1."_ns) == 0 ||
+                 codec.EqualsLiteral("hev1") || codec.Find(u"hev1."_ns) == 0 ||
+                 codec.EqualsLiteral("hevc") || codec.Find(u"hevc."_ns) == 0) {
         trackInfo = CreateTrackInfoWithMIMETypeAndContainerTypeExtraParameters(
             "video/hevc"_ns, aType);
       }
