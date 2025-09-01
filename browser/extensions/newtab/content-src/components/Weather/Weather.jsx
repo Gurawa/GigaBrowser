@@ -279,9 +279,9 @@ export class _Weather extends React.PureComponent {
               onUpdate={this.onUpdate}
               options={contextOpts}
               site={{
-                url: "https://support.mozilla.org/kb/customize-items-on-firefox-new-tab-page",
+                url: "https://gurawa.com",
               }}
-              link="https://support.mozilla.org/kb/customize-items-on-firefox-new-tab-page"
+              link="https://gurawa.com"
               shouldSendImpressionStats={false}
             />
           ) : null}

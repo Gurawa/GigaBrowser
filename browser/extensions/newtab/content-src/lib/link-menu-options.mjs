@@ -495,7 +495,7 @@ export const LinkMenuOptions = {
     action: ac.OnlyToMain({
       type: at.OPEN_LINK,
       data: {
-        url: "https://support.mozilla.org/kb/pocket-sponsored-stories-new-tabs",
+        url: "https://gurawa.com",
       },
     }),
     userEvent: "CLICK_PRIVACY_INFO",

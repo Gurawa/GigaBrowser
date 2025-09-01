@@ -2272,7 +2272,7 @@ const LinkMenuOptions = {
     action: actionCreators.OnlyToMain({
       type: actionTypes.OPEN_LINK,
       data: {
-        url: "https://support.mozilla.org/kb/pocket-sponsored-stories-new-tabs",
+        url: "https://gurawa.com",
       },
     }),
     userEvent: "CLICK_PRIVACY_INFO",
@@ -4914,7 +4914,7 @@ const PromoCard = () => {
   }), /*#__PURE__*/external_React_default().createElement("span", {
     className: "promo-card-cta-wrapper"
   }, /*#__PURE__*/external_React_default().createElement("a", {
-    href: "https://support.mozilla.org/kb/sponsor-privacy",
+    href: "https://gurawa.com",
     "data-l10n-id": "newtab-promo-card-cta",
     target: "_blank",
     rel: "noreferrer",
@@ -5283,7 +5283,7 @@ function TrendingSearches() {
       options: TRENDING_SEARCH_CONTEXT_MENU_OPTIONS,
       shouldSendImpressionStats: true,
       site: {
-        url: "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/trending-searches-new-tab",
+        url: "https://gurawa.com",
         variant
       }
     })))), /*#__PURE__*/external_React_default().createElement("ul", {
@@ -11469,7 +11469,7 @@ const PersonalizedCard = ({
   }, messageData.content.ctaText), /*#__PURE__*/external_React_default().createElement(SafeAnchor, {
     className: "personalized-card-link",
     dispatch: dispatch,
-    url: messageData.content.linkUrl || "https://support.mozilla.org/",
+    url: messageData.content.linkUrl || "https://gurawa.com",
     onLinkClick: () => {
       handleClick("link-click");
     }
@@ -12380,7 +12380,7 @@ function Lists({
     dispatch(actionCreators.OnlyToMain({
       type: actionTypes.OPEN_LINK,
       data: {
-        url: "https://support.mozilla.org/kb/firefox-new-tab-widgets"
+        url: "https://gurawa.com"
       }
     }));
   }
@@ -13108,7 +13108,7 @@ const FocusTimer = ({
     dispatch(actionCreators.OnlyToMain({
       type: actionTypes.OPEN_LINK,
       data: {
-        url: "https://support.mozilla.org/kb/firefox-new-tab-widgets"
+        url: "https://gurawa.com"
       }
     }));
   }
@@ -15401,9 +15401,9 @@ class _Weather extends (external_React_default()).PureComponent {
       onUpdate: this.onUpdate,
       options: contextOpts,
       site: {
-        url: "https://support.mozilla.org/kb/customize-items-on-firefox-new-tab-page"
+        url: "https://gurawa.com"
       },
-      link: "https://support.mozilla.org/kb/customize-items-on-firefox-new-tab-page",
+      link: "https://gurawa.com",
       shouldSendImpressionStats: false
     }) : null));
     if (Weather.searchActive) {
