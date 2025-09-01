@@ -49,6 +49,14 @@ ID
 .*.sw[a-z]
 .sw[a-z]
 
+# GitHub Actions build artifacts
+obj-ff/
+obj-intel/
+obj-aarch64/
+obj-github/
+*.log
+build-macos.log
+
 # Emacs directory variable files.
 **/.dir-locals.el
 # Emacs project sentinel files.

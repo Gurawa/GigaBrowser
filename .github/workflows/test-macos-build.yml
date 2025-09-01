@@ -1,0 +1,138 @@
+name: Test macOS Build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/test-macos-build.yml'
+      - 'build-macos.sh'
+      - 'mozconfig.github-actions'
+
+env:
+  MOZILLA_OFFICIAL: 1
+  MOZ_AUTOMATION: 1
+
+jobs:
+  test-build-setup:
+    runs-on: macos-13
+    timeout-minutes: 60
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install basic dependencies
+      run: |
+        # Update Homebrew
+        brew update
+        
+        # Install essential build tools
+        brew install \
+          autoconf \
+          cmake \
+          ninja \
+          yasm \
+          python@3.11 \
+          node
+        
+        # Ensure python3 points to the right version
+        brew link --overwrite python@3.11
+    
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        default: true
+        override: true
+    
+    - name: Test build script permissions
+      run: |
+        chmod +x build-macos.sh
+        ls -la build-macos.sh
+    
+    - name: Validate mozconfig
+      run: |
+        echo "Checking mozconfig.github-actions..."
+        cat mozconfig.github-actions
+        echo "mozconfig validation complete"
+    
+    - name: Test mach bootstrap (dry run)
+      run: |
+        export MOZCONFIG=$PWD/mozconfig.github-actions
+        echo "Testing mach bootstrap..."
+        python3 ./mach bootstrap --help
+        echo "mach bootstrap help completed"
+    
+    - name: Check system information
+      run: |
+        echo "=== System Information ==="
+        uname -a
+        sw_vers
+        
+        echo "=== CPU Information ==="
+        sysctl -n hw.ncpu
+        sysctl -n hw.memsize
+        
+        echo "=== Xcode Information ==="
+        xcode-select -p
+        xcodebuild -version || true
+        
+        echo "=== Compiler Information ==="
+        clang --version
+        
+        echo "=== Python Information ==="
+        python3 --version
+        which python3
+        
+        echo "=== Rust Information ==="
+        rustc --version
+        cargo --version
+        
+        echo "=== Node Information ==="
+        node --version
+        npm --version
+    
+    - name: Test build environment setup
+      run: |
+        # Test if we can set up the basic environment
+        export MOZILLA_OFFICIAL=1
+        export MOZ_AUTOMATION=1
+        export MOZCONFIG=$PWD/mozconfig.github-actions
+        
+        echo "Environment variables set:"
+        echo "MOZILLA_OFFICIAL=$MOZILLA_OFFICIAL"
+        echo "MOZ_AUTOMATION=$MOZ_AUTOMATION"
+        echo "MOZCONFIG=$MOZCONFIG"
+        
+        # Verify mozconfig exists and is readable
+        if [ -f "$MOZCONFIG" ]; then
+          echo "mozconfig found and readable"
+        else
+          echo "ERROR: mozconfig not found or not readable"
+          exit 1
+        fi
+        
+        # Test if mach can be executed
+        if python3 ./mach --help > /dev/null; then
+          echo "mach command accessible"
+        else
+          echo "ERROR: mach command not accessible"
+          exit 1
+        fi
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-macos
+        path: |
+          mozconfig.github-actions
+          build-macos.sh
+        retention-days: 7
+      if: always()

@@ -1,0 +1,150 @@
+name: Build for macOS
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  MOZILLA_OFFICIAL: 1
+  MOZ_AUTOMATION: 1
+  MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
+
+jobs:
+  build-macos:
+    runs-on: macos-13
+    timeout-minutes: 180
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install system dependencies
+      run: |
+        # Install required packages using Homebrew
+        brew install \
+          autoconf \
+          cmake \
+          ninja \
+          yasm \
+          mercurial \
+          gnu-tar \
+          python@3.11 \
+          node \
+          watchman
+        
+        # Link python3.11 to python3 if needed
+        brew link --overwrite python@3.11
+    
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        default: true
+        override: true
+        components: rustfmt, clippy
+    
+    - name: Install Node.js dependencies
+      run: |
+        npm install
+    
+    - name: Bootstrap build environment
+      run: |
+        # Create mozconfig for macOS build
+        cat > mozconfig << 'EOF'
+        # Build configuration for macOS on GitHub Actions
+        mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-ff
+        mk_add_options MOZ_MAKE_FLAGS="-j$(sysctl -n hw.ncpu)"
+        
+        # Use clang
+        export CC=clang
+        export CXX=clang++
+        
+        # Enable optimizations
+        ac_add_options --enable-optimize
+        ac_add_options --enable-release
+        
+        # Disable debug for faster builds
+        ac_add_options --disable-debug
+        ac_add_options --disable-debug-symbols
+        
+        # Enable application
+        ac_add_options --enable-application=browser
+        
+        # macOS specific options
+        ac_add_options --target=x86_64-apple-darwin
+        
+        # Disable features that require additional dependencies
+        ac_add_options --disable-tests
+        ac_add_options --disable-crashreporter
+        ac_add_options --disable-updater
+        
+        # Enable PGO for better performance (optional)
+        # ac_add_options --enable-profile-guided-optimization
+        
+        # Branding
+        ac_add_options --with-branding=browser/branding/unofficial
+        ac_add_options --with-distribution-id=org.mozilla.gigabrowser
+        EOF
+        
+        # Set environment variables
+        export MOZCONFIG=$PWD/mozconfig
+        echo "MOZCONFIG=$PWD/mozconfig" >> $GITHUB_ENV
+        
+        # Bootstrap the build environment
+        python3 ./mach bootstrap --no-interactive --application-choice=browser
+    
+    - name: Build application
+      run: |
+        export MOZCONFIG=$PWD/mozconfig
+        
+        # Configure build
+        python3 ./mach configure
+        
+        # Build the browser
+        python3 ./mach build
+    
+    - name: Package application
+      run: |
+        export MOZCONFIG=$PWD/mozconfig
+        
+        # Create package
+        python3 ./mach package
+    
+    - name: Create DMG (macOS installer)
+      run: |
+        export MOZCONFIG=$PWD/mozconfig
+        
+        # Create installer DMG
+        python3 ./mach build installer
+      continue-on-error: true
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: gigabrowser-macos-build
+        path: |
+          obj-ff/dist/*.dmg
+          obj-ff/dist/*.tar.bz2
+          obj-ff/dist/GigaBrowser.app
+        retention-days: 30
+      if: always()
+    
+    - name: Upload logs on failure
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs-macos
+        path: |
+          obj-ff/config.log
+          obj-ff/**/*.log
+        retention-days: 7
+      if: failure()

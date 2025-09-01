@@ -1,0 +1,298 @@
+name: Build Universal macOS Application
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+        - debug
+        - release
+        - pgo
+
+env:
+  MOZILLA_OFFICIAL: 1
+  MOZ_AUTOMATION: 1
+  MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
+
+jobs:
+  build-intel:
+    runs-on: macos-13  # Intel runner
+    timeout-minutes: 240
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install system dependencies
+      run: |
+        brew install \
+          autoconf \
+          cmake \
+          ninja \
+          yasm \
+          mercurial \
+          gnu-tar \
+          python@3.11 \
+          node \
+          watchman
+        brew link --overwrite python@3.11
+    
+    - name: Set up Rust with Intel target
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        default: true
+        override: true
+        components: rustfmt, clippy
+        target: x86_64-apple-darwin
+    
+    - name: Install Node.js dependencies
+      run: npm install
+    
+    - name: Create Intel mozconfig
+      run: |
+        cat > mozconfig << 'EOF'
+        # Intel macOS build configuration
+        mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-intel
+        mk_add_options MOZ_MAKE_FLAGS="-j$(sysctl -n hw.ncpu)"
+        
+        export CC=clang
+        export CXX=clang++
+        
+        ac_add_options --target=x86_64-apple-darwin
+        ac_add_options --enable-application=browser
+        ac_add_options --with-branding=browser/branding/unofficial
+        ac_add_options --with-distribution-id=org.mozilla.gigabrowser
+        
+        # Build type specific options
+        ac_add_options --enable-optimize
+        ac_add_options --enable-release
+        ac_add_options --disable-debug
+        ac_add_options --disable-debug-symbols
+        ac_add_options --disable-tests
+        ac_add_options --disable-crashreporter
+        ac_add_options --disable-updater
+        EOF
+        
+        export MOZCONFIG=$PWD/mozconfig
+        echo "MOZCONFIG=$PWD/mozconfig" >> $GITHUB_ENV
+    
+    - name: Bootstrap and build Intel
+      run: |
+        export MOZCONFIG=$PWD/mozconfig
+        python3 ./mach bootstrap --no-interactive --application-choice=browser
+        python3 ./mach configure
+        python3 ./mach build
+        python3 ./mach package
+    
+    - name: Upload Intel artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: gigabrowser-intel-build
+        path: |
+          obj-intel/dist/*.tar.bz2
+          obj-intel/dist/GigaBrowser.app
+        retention-days: 1
+  
+  build-apple-silicon:
+    runs-on: macos-14  # Apple Silicon runner
+    timeout-minutes: 240
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install system dependencies
+      run: |
+        brew install \
+          autoconf \
+          cmake \
+          ninja \
+          yasm \
+          mercurial \
+          gnu-tar \
+          python@3.11 \
+          node \
+          watchman
+        brew link --overwrite python@3.11
+    
+    - name: Set up Rust with Apple Silicon target
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        default: true
+        override: true
+        components: rustfmt, clippy
+        target: aarch64-apple-darwin
+    
+    - name: Install Node.js dependencies
+      run: npm install
+    
+    - name: Create Apple Silicon mozconfig
+      run: |
+        cat > mozconfig << 'EOF'
+        # Apple Silicon macOS build configuration
+        mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-aarch64
+        mk_add_options MOZ_MAKE_FLAGS="-j$(sysctl -n hw.ncpu)"
+        
+        export CC=clang
+        export CXX=clang++
+        
+        ac_add_options --target=aarch64-apple-darwin
+        ac_add_options --enable-application=browser
+        ac_add_options --with-branding=browser/branding/unofficial
+        ac_add_options --with-distribution-id=org.mozilla.gigabrowser
+        
+        # Build type specific options
+        ac_add_options --enable-optimize
+        ac_add_options --enable-release
+        ac_add_options --disable-debug
+        ac_add_options --disable-debug-symbols
+        ac_add_options --disable-tests
+        ac_add_options --disable-crashreporter
+        ac_add_options --disable-updater
+        EOF
+        
+        export MOZCONFIG=$PWD/mozconfig
+        echo "MOZCONFIG=$PWD/mozconfig" >> $GITHUB_ENV
+    
+    - name: Bootstrap and build Apple Silicon
+      run: |
+        export MOZCONFIG=$PWD/mozconfig
+        python3 ./mach bootstrap --no-interactive --application-choice=browser
+        python3 ./mach configure
+        python3 ./mach build
+        python3 ./mach package
+    
+    - name: Upload Apple Silicon artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: gigabrowser-aarch64-build
+        path: |
+          obj-aarch64/dist/*.tar.bz2
+          obj-aarch64/dist/GigaBrowser.app
+        retention-days: 1
+
+  create-universal-build:
+    needs: [build-intel, build-apple-silicon]
+    runs-on: macos-14
+    timeout-minutes: 60
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Download Intel build
+      uses: actions/download-artifact@v4
+      with:
+        name: gigabrowser-intel-build
+        path: ./intel-build
+    
+    - name: Download Apple Silicon build
+      uses: actions/download-artifact@v4
+      with:
+        name: gigabrowser-aarch64-build
+        path: ./aarch64-build
+    
+    - name: Create Universal Binary
+      run: |
+        # Create directories
+        mkdir -p universal-build
+        
+        # Copy Apple Silicon app as base
+        cp -R ./aarch64-build/GigaBrowser.app ./universal-build/
+        
+        # Create universal binaries using lipo
+        INTEL_APP="./intel-build/GigaBrowser.app"
+        AARCH64_APP="./aarch64-build/GigaBrowser.app"
+        UNIVERSAL_APP="./universal-build/GigaBrowser.app"
+        
+        # Find all binaries in the app and make them universal
+        find "$UNIVERSAL_APP" -type f -exec file {} \; | grep "Mach-O" | cut -d: -f1 | while read binary; do
+          relative_path=${binary#$UNIVERSAL_APP/}
+          intel_binary="$INTEL_APP/$relative_path"
+          aarch64_binary="$AARCH64_APP/$relative_path"
+          
+          if [ -f "$intel_binary" ] && [ -f "$aarch64_binary" ]; then
+            echo "Creating universal binary for: $relative_path"
+            lipo -create "$intel_binary" "$aarch64_binary" -output "$binary"
+          fi
+        done
+        
+        # Update Info.plist to indicate universal support
+        /usr/libexec/PlistBuddy -c "Set :LSArchitecturePriority:0 x86_64" "$UNIVERSAL_APP/Contents/Info.plist" 2>/dev/null || \
+        /usr/libexec/PlistBuddy -c "Add :LSArchitecturePriority array" "$UNIVERSAL_APP/Contents/Info.plist"
+        /usr/libexec/PlistBuddy -c "Add :LSArchitecturePriority:0 string x86_64" "$UNIVERSAL_APP/Contents/Info.plist" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Add :LSArchitecturePriority:1 string arm64" "$UNIVERSAL_APP/Contents/Info.plist" 2>/dev/null || true
+    
+    - name: Create DMG installer
+      run: |
+        # Install create-dmg if not available
+        brew install create-dmg || true
+        
+        # Create DMG
+        create-dmg \
+          --volname "GigaBrowser" \
+          --volicon "universal-build/GigaBrowser.app/Contents/Resources/firefox.icns" \
+          --window-pos 200 120 \
+          --window-size 800 400 \
+          --icon-size 100 \
+          --icon "GigaBrowser.app" 200 190 \
+          --hide-extension "GigaBrowser.app" \
+          --app-drop-link 600 185 \
+          "GigaBrowser-Universal.dmg" \
+          "universal-build/" || \
+        {
+          # Fallback: create simple DMG using hdiutil
+          echo "create-dmg failed, using hdiutil..."
+          hdiutil create -volname "GigaBrowser" -srcfolder "universal-build" -ov -format UDZO "GigaBrowser-Universal.dmg"
+        }
+    
+    - name: Verify Universal Binary
+      run: |
+        echo "Verifying universal binary..."
+        file universal-build/GigaBrowser.app/Contents/MacOS/firefox
+        lipo -archs universal-build/GigaBrowser.app/Contents/MacOS/firefox
+    
+    - name: Upload Universal Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: gigabrowser-universal-macos
+        path: |
+          GigaBrowser-Universal.dmg
+          universal-build/GigaBrowser.app
+        retention-days: 30
+    
+    - name: Create Release (if tag)
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          GigaBrowser-Universal.dmg
+        draft: true
+        prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,202 @@
+name: Simple macOS Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/simple-macos-build.yml'
+
+env:
+  MOZILLA_OFFICIAL: 1
+  MOZ_AUTOMATION: 1
+  MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE: system
+
+jobs:
+  build-macos:
+    runs-on: macos-13
+    timeout-minutes: 360  # 6 hours for full build
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history needed for version detection
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Free up disk space
+      run: |
+        # Free up space on the runner
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /opt/hostedtoolcache/CodeQL
+        df -h
+    
+    - name: Install system dependencies
+      run: |
+        echo "Installing dependencies via Homebrew..."
+        brew update
+        
+        # Install essential build dependencies
+        brew install \
+          autoconf \
+          cmake \
+          ninja \
+          yasm \
+          python@3.11 \
+          node@18 \
+          mercurial \
+          wget
+        
+        # Ensure we're using the right Python
+        brew link --overwrite python@3.11
+        
+        echo "Dependencies installed successfully"
+    
+    - name: Set up Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: stable
+        components: rustfmt, clippy
+    
+    - name: Create optimized mozconfig
+      run: |
+        cat > mozconfig << 'EOF'
+        # Optimized mozconfig for GitHub Actions
+        mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/obj-github
+        mk_add_options MOZ_MAKE_FLAGS="-j4"  # Conservative parallelism
+        
+        # Use system clang
+        export CC=clang
+        export CXX=clang++
+        
+        # Target Intel macOS
+        ac_add_options --target=x86_64-apple-darwin
+        
+        # Application type
+        ac_add_options --enable-application=browser
+        
+        # Optimization for size and speed
+        ac_add_options --enable-optimize="-O2"
+        ac_add_options --enable-release
+        
+        # Disable debug features
+        ac_add_options --disable-debug
+        ac_add_options --disable-debug-symbols
+        ac_add_options --disable-profiling
+        
+        # Disable features to speed up build
+        ac_add_options --disable-tests
+        ac_add_options --disable-crashreporter
+        ac_add_options --disable-updater
+        ac_add_options --disable-maintenance-service
+        ac_add_options --disable-verify-mar
+        ac_add_options --disable-signmar
+        
+        # Use unofficial branding
+        ac_add_options --with-branding=browser/branding/unofficial
+        ac_add_options --with-distribution-id=org.mozilla.gigabrowser
+        
+        # Disable sandbox for CI compatibility
+        ac_add_options --disable-sandbox
+        
+        # Use system libraries where possible
+        ac_add_options --with-system-zlib
+        EOF
+        
+        echo "mozconfig created:"
+        cat mozconfig
+    
+    - name: Set environment variables
+      run: |
+        echo "MOZCONFIG=$PWD/mozconfig" >> $GITHUB_ENV
+        echo "MOZ_OBJDIR=$PWD/obj-github" >> $GITHUB_ENV
+        echo "PATH=/usr/local/bin:$PATH" >> $GITHUB_ENV
+    
+    - name: Install Node.js dependencies
+      run: |
+        echo "Installing Node.js dependencies..."
+        npm install --production
+    
+    - name: Bootstrap build environment
+      run: |
+        echo "Starting bootstrap process..."
+        export MOZCONFIG=$PWD/mozconfig
+        
+        # Bootstrap with minimal interaction
+        echo | python3 ./mach bootstrap --application-choice=browser
+        
+        echo "Bootstrap completed"
+    
+    - name: Configure build
+      run: |
+        echo "Configuring build..."
+        export MOZCONFIG=$PWD/mozconfig
+        
+        python3 ./mach configure
+        
+        echo "Configuration completed"
+    
+    - name: Build browser
+      run: |
+        echo "Starting build process..."
+        export MOZCONFIG=$PWD/mozconfig
+        
+        # Build with progress output
+        python3 ./mach build 2>&1 | tee build.log
+        
+        echo "Build completed"
+    
+    - name: Check build artifacts
+      run: |
+        echo "Checking build artifacts..."
+        ls -la obj-github/dist/ || echo "No dist directory found"
+        find obj-github -name "*.app" -o -name "*.dmg" -o -name "*.tar.bz2" 2>/dev/null || echo "No app bundles found"
+    
+    - name: Package application
+      run: |
+        echo "Packaging application..."
+        export MOZCONFIG=$PWD/mozconfig
+        
+        python3 ./mach package 2>&1 | tee package.log
+        
+        echo "Packaging completed"
+        
+        # Show what was created
+        echo "Package contents:"
+        ls -la obj-github/dist/
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: gigabrowser-macos-intel
+        path: |
+          obj-github/dist/*.dmg
+          obj-github/dist/*.tar.bz2
+          obj-github/dist/*.app/
+        retention-days: 30
+        if-no-files-found: warn
+    
+    - name: Upload build logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs
+        path: |
+          build.log
+          package.log
+          mozconfig
+          obj-github/config.log
+        retention-days: 14
+      if: always()
+    
+    - name: Show disk usage
+      run: |
+        echo "Final disk usage:"
+        df -h
+        du -sh obj-github/ || echo "No obj-github directory"
+      if: always()

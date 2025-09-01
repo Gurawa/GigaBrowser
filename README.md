@@ -1,6 +1,28 @@
 ![Firefox Browser](./docs/readme/readme-banner.svg)
 
-[Firefox](https://firefox.com/) is a fast, reliable and private web browser from the non-profit [Mozilla organization](https://mozilla.org/).
+# GigaBrowser
+
+GigaBrowser is a fast, reliable and private web browser based on [Firefox](https://firefox.com/) from the [Mozilla organization](https://mozilla.org/).
+
+## Building for macOS
+
+GigaBrowser supports building for macOS using GitHub Actions with both Intel and Apple Silicon support.
+
+### Quick Start
+
+1. **Simple Build**: The basic workflow builds for Intel Macs and is triggered automatically on pushes to main/develop branches.
+
+2. **Universal Build**: Creates universal binaries for both Intel and Apple Silicon Macs.
+
+3. **Manual Build**: You can trigger builds manually using the workflow dispatch feature.
+
+### Build Workflows
+
+- **macOS Build** (`.github/workflows/macos-build.yml`) - Basic Intel build
+- **Universal macOS Build** (`.github/workflows/macos-universal-build.yml`) - Universal binary build
+- **Test macOS Build** (`.github/workflows/test-macos-build.yml`) - Environment testing
+
+For detailed build instructions, see [docs/BUILD-MACOS.md](docs/BUILD-MACOS.md).
 
 ### Contributing
 
