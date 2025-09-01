@@ -484,7 +484,7 @@ export const FocusTimer = ({ dispatch }) => {
       ac.OnlyToMain({
         type: at.OPEN_LINK,
         data: {
-          url: "https://support.mozilla.org/kb/firefox-new-tab-widgets",
+          url: "https://gurawa.com",
         },
       })
     );

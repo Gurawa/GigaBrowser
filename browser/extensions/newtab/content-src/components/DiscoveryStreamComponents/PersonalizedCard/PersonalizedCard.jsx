@@ -55,7 +55,7 @@ export const PersonalizedCard = ({
           <SafeAnchor
             className="personalized-card-link"
             dispatch={dispatch}
-            url={messageData.content.linkUrl || "https://support.mozilla.org/"}
+            url={messageData.content.linkUrl || "https://gurawa.com"}
             onLinkClick={() => {
               handleClick("link-click");
             }}

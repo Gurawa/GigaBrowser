@@ -78,7 +78,7 @@ const PromoCard = () => {
         />
         <span className="promo-card-cta-wrapper">
           <a
-            href="https://support.mozilla.org/kb/sponsor-privacy"
+            href="https://gurawa.com"
             data-l10n-id="newtab-promo-card-cta"
             target="_blank"
             rel="noreferrer"

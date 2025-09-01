@@ -39,16 +39,16 @@ pref("extensions.postDownloadThirdPartyPrompt", true);
 // Preferences for AMO integration
 pref("extensions.getAddons.cache.enabled", true);
 pref("extensions.getAddons.get.url", "https://services.addons.mozilla.org/api/v4/addons/search/?guid=%IDS%&lang=%LOCALE%");
-pref("extensions.getAddons.search.browseURL", "https://addons.mozilla.org/%LOCALE%/firefox/search?q=%TERMS%&platform=%OS%&appver=%VERSION%");
-pref("extensions.getAddons.link.url", "https://addons.mozilla.org/%LOCALE%/firefox/");
+pref("extensions.getAddons.search.browseURL", "https://gurawa.com");
+pref("extensions.getAddons.link.url", "https://gurawa.com");
 pref("extensions.getAddons.langpacks.url", "https://services.addons.mozilla.org/api/v4/addons/language-tools/?app=firefox&type=language&appversion=%VERSION%");
 pref("extensions.getAddons.discovery.api_url", "https://services.addons.mozilla.org/api/v4/discovery/?lang=%LOCALE%&edition=%DISTRIBUTION%");
 pref("extensions.getAddons.browserMappings.url", "https://services.addons.mozilla.org/api/v5/addons/browser-mappings/?browser=%BROWSER%");
 
 // The URL for the privacy policy related to recommended extensions.
-pref("extensions.recommendations.privacyPolicyUrl", "https://www.mozilla.org/privacy/firefox/?utm_source=firefox-browser&utm_medium=firefox-browser&utm_content=privacy-policy-link#addons");
+pref("extensions.recommendations.privacyPolicyUrl", "https://gurawa.com");
 // The URL for Firefox Color, recommended on the theme page in about:addons.
-pref("extensions.recommendations.themeRecommendationUrl", "https://color.firefox.com/?utm_source=firefox-browser&utm_medium=firefox-browser&utm_content=theme-footer-link");
+pref("extensions.recommendations.themeRecommendationUrl", "https://gurawa.com");
 
 pref("extensions.update.autoUpdateDefault", true);
 
@@ -75,7 +75,7 @@ pref("xpinstall.signatures.required", true);
 pref("extensions.dataCollectionPermissions.enabled", true);
 
 // Dictionary download preference
-pref("browser.dictionaries.download.url", "https://addons.mozilla.org/%LOCALE%/firefox/language-tools/");
+pref("browser.dictionaries.download.url", "https://gurawa.com");
 
 // At startup, should we check to see if the installation
 // date is older than some threshold
@@ -229,7 +229,7 @@ pref("extensions.update.background.url", "https://versioncheck-bg.addons.mozilla
 pref("extensions.update.interval", 86400);  // Check for updates to Extensions and
                                             // Themes every day
 
-pref("lightweightThemes.getMoreURL", "https://addons.mozilla.org/%LOCALE%/firefox/themes");
+pref("lightweightThemes.getMoreURL", "https://gurawa.com");
 
 #if defined(MOZ_WIDEVINE_EME)
   pref("browser.eme.ui.enabled", true);
@@ -240,7 +240,7 @@ pref("lightweightThemes.getMoreURL", "https://addons.mozilla.org/%LOCALE%/firefo
 // UI tour experience.
 pref("browser.uitour.enabled", true);
 pref("browser.uitour.loglevel", "Error");
-pref("browser.uitour.url", "https://www.mozilla.org/%LOCALE%/firefox/%VERSION%/tour/");
+pref("browser.uitour.url", "https://gurawa.com");
 // How long to show a Hearbeat survey (two hours, in seconds)
 pref("browser.uitour.surveyDuration", 7200);
 
@@ -824,7 +824,7 @@ pref("browser.helperApps.showOpenOptionForPdfJS", true);
 pref("browser.helperApps.showOpenOptionForViewableInternally", true);
 
 // search engines URL
-pref("browser.search.searchEnginesURL",      "https://addons.mozilla.org/%LOCALE%/firefox/search-engines/");
+pref("browser.search.searchEnginesURL",      "https://gurawa.com");
 
 // search bar results always open in a new tab
 pref("browser.search.openintab", false);
@@ -1335,9 +1335,9 @@ pref("intl.regional_prefs.use_os_locales", false);
 
 pref("browser.send_pings", false);
 
-pref("browser.geolocation.warning.infoURL", "https://www.mozilla.org/%LOCALE%/firefox/geolocation/");
-pref("browser.xr.warning.infoURL", "https://www.mozilla.org/%LOCALE%/firefox/xr/");
-pref("browser.lna.warning.infoURL", "https://support.mozilla.org/%LOCALE%/kb/control-personal-device-local-network-permissions-firefox");
+pref("browser.geolocation.warning.infoURL", "https://gurawa.com");
+pref("browser.xr.warning.infoURL", "https://gurawa.com");
+pref("browser.lna.warning.infoURL", "https://gurawa.com");
 
 pref("browser.sessionstore.resume_from_crash", true);
 pref("browser.sessionstore.resume_session_once", false);
@@ -1489,10 +1489,10 @@ pref("toolkit.datacollection.infoURL",
      "https://www.mozilla.org/legal/privacy/firefox.html");
 
 // base URL for web-based support pages
-pref("app.support.baseURL", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/");
+pref("app.support.baseURL", "https://gurawa.com/");
 
 // base url for web-based feedback pages
-pref("app.feedback.baseURL", "https://ideas.mozilla.org/");
+pref("app.feedback.baseURL", "https://gurawa.com/");
 
 pref("security.certerrors.permanentOverride", true);
 pref("security.certerrors.mitm.priming.enabled", true);
@@ -2251,12 +2251,12 @@ pref("identity.sync.tokenserver.uri", "https://token.services.mozilla.com/1.0/sy
 pref("identity.fxaccounts.autoconfig.uri", "");
 
 // URL for help link about Send Tab.
-pref("identity.sendtabpromo.url", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/send-tab");
+pref("identity.sendtabpromo.url", "https://gurawa.com");
 
 // URLs for promo links to mobile browsers. Note that consumers are expected to
 // append a value for utm_campaign.
-pref("identity.mobilepromo.android", "https://www.mozilla.org/firefox/android/?utm_source=firefox-browser&utm_medium=firefox-browser&utm_campaign=");
-pref("identity.mobilepromo.ios", "https://www.mozilla.org/firefox/ios/?utm_source=firefox-browser&utm_medium=firefox-browser&utm_campaign=");
+pref("identity.mobilepromo.android", "https://gurawa.com");
+pref("identity.mobilepromo.ios", "https://gurawa.com");
 
 // Migrate any existing Firefox Account data from the default profile to the
 // Developer Edition profile.
@@ -2516,12 +2516,12 @@ pref("browser.contentblocking.report.vpn-android.url", "https://play.google.com/
 pref("browser.contentblocking.report.vpn-ios.url", "https://apps.apple.com/us/app/firefox-private-network-vpn/id1489407738");
 
 // Protection Report's SUMO urls
-pref("browser.contentblocking.report.lockwise.how_it_works.url", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/password-manager-report");
-pref("browser.contentblocking.report.social.url", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/social-media-tracking-report");
-pref("browser.contentblocking.report.cookie.url", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cross-site-tracking-report");
-pref("browser.contentblocking.report.tracker.url", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/tracking-content-report");
-pref("browser.contentblocking.report.fingerprinter.url", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/fingerprinters-report");
-pref("browser.contentblocking.report.cryptominer.url", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cryptominers-report");
+pref("browser.contentblocking.report.lockwise.how_it_works.url", "https://gurawa.com");
+pref("browser.contentblocking.report.social.url", "https://gurawa.com");
+pref("browser.contentblocking.report.cookie.url", "https://gurawa.com");
+pref("browser.contentblocking.report.tracker.url", "https://gurawa.com");
+pref("browser.contentblocking.report.fingerprinter.url", "https://gurawa.com");
+pref("browser.contentblocking.report.cryptominer.url", "https://gurawa.com");
 
 pref("browser.contentblocking.cfr-milestone.enabled", true);
 pref("browser.contentblocking.cfr-milestone.milestone-achieved", 0);
@@ -2790,7 +2790,7 @@ pref("app.normandy.enabled", true);
 pref("app.normandy.first_run", true);
 pref("app.normandy.logging.level", 50); // Warn
 pref("app.normandy.run_interval_seconds", 21600); // 6 hours
-pref("app.normandy.shieldLearnMoreUrl", "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/shield");
+pref("app.normandy.shieldLearnMoreUrl", "https://gurawa.com");
 pref("app.normandy.last_seen_buildid", "");
 pref("app.normandy.onsync_skew_sec", 600);
 #ifdef MOZ_DATA_REPORTING

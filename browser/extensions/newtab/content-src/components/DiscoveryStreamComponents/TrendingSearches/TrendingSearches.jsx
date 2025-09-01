@@ -228,7 +228,7 @@ function TrendingSearches() {
                   options={TRENDING_SEARCH_CONTEXT_MENU_OPTIONS}
                   shouldSendImpressionStats={true}
                   site={{
-                    url: "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/trending-searches-new-tab",
+                    url: "https://gurawa.com",
                     variant,
                   }}
                 />

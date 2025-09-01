@@ -67,7 +67,7 @@ TASKCLUSTER_ROOT_URL = "https://firefox-ci-tc.services.mozilla.com"
 BEETMOVER_TASK_NAME = "beetmover-newtab"
 XPI_NAME = "newtab.xpi"
 BEETMOVER_ARTIFACT_PATH = f"public/build/{XPI_NAME}"
-ARCHIVE_ROOT_PATH = "https://ftp.mozilla.org"
+ARCHIVE_ROOT_PATH = "https://gurawa.com"
 
 
 class YamlType(Enum):
